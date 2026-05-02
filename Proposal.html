@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <title>UCSD MATH 157 Final Project Proposal</title>
+            <style>
+/* From extension vscode.github */
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+.vscode-dark img[src$=\#gh-light-mode-only],
+.vscode-light img[src$=\#gh-dark-mode-only],
+.vscode-high-contrast:not(.vscode-high-contrast-light) img[src$=\#gh-light-mode-only],
+.vscode-high-contrast-light img[src$=\#gh-dark-mode-only] {
+	display: none;
+}
+
+</style>
+            <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex/dist/katex.min.css">
+<link href="https://cdn.jsdelivr.net/npm/katex-copytex@latest/dist/katex-copytex.min.css" rel="stylesheet" type="text/css">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/markdown.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/highlight.css">
+<style>
+            body {
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe WPC', 'Segoe UI', system-ui, 'Ubuntu', 'Droid Sans', sans-serif;
+                font-size: 14px;
+                line-height: 1.6;
+            }
+        </style>
+        <style>
+.task-list-item {
+    list-style-type: none;
+}
+
+.task-list-item-checkbox {
+    margin-left: -20px;
+    vertical-align: middle;
+    pointer-events: none;
+}
+</style>
+<style>
+:root {
+  --color-note: #0969da;
+  --color-tip: #1a7f37;
+  --color-warning: #9a6700;
+  --color-severe: #bc4c00;
+  --color-caution: #d1242f;
+  --color-important: #8250df;
+}
+
+</style>
+<style>
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-note: #2f81f7;
+    --color-tip: #3fb950;
+    --color-warning: #d29922;
+    --color-severe: #db6d28;
+    --color-caution: #f85149;
+    --color-important: #a371f7;
+  }
+}
+
+</style>
+<style>
+.markdown-alert {
+  padding: 0.5rem 1rem;
+  margin-bottom: 16px;
+  color: inherit;
+  border-left: .25em solid #888;
+}
+
+.markdown-alert>:first-child {
+  margin-top: 0
+}
+
+.markdown-alert>:last-child {
+  margin-bottom: 0
+}
+
+.markdown-alert .markdown-alert-title {
+  display: flex;
+  font-weight: 500;
+  align-items: center;
+  line-height: 1
+}
+
+.markdown-alert .markdown-alert-title .octicon {
+  margin-right: 0.5rem;
+  display: inline-block;
+  overflow: visible !important;
+  vertical-align: text-bottom;
+  fill: currentColor;
+}
+
+.markdown-alert.markdown-alert-note {
+  border-left-color: var(--color-note);
+}
+
+.markdown-alert.markdown-alert-note .markdown-alert-title {
+  color: var(--color-note);
+}
+
+.markdown-alert.markdown-alert-important {
+  border-left-color: var(--color-important);
+}
+
+.markdown-alert.markdown-alert-important .markdown-alert-title {
+  color: var(--color-important);
+}
+
+.markdown-alert.markdown-alert-warning {
+  border-left-color: var(--color-warning);
+}
+
+.markdown-alert.markdown-alert-warning .markdown-alert-title {
+  color: var(--color-warning);
+}
+
+.markdown-alert.markdown-alert-tip {
+  border-left-color: var(--color-tip);
+}
+
+.markdown-alert.markdown-alert-tip .markdown-alert-title {
+  color: var(--color-tip);
+}
+
+.markdown-alert.markdown-alert-caution {
+  border-left-color: var(--color-caution);
+}
+
+.markdown-alert.markdown-alert-caution .markdown-alert-title {
+  color: var(--color-caution);
+}
+
+</style>
+        
+        </head>
+        <body class="vscode-body vscode-light">
+            <h1 id="ucsd-math-157-final-project-proposal">UCSD MATH 157 Final Project Proposal</h1>
+<p>Tom Zhang</p>
+<p>A17356676</p>
+<h2 id="project-background">Project Background</h2>
+<p>The FishSense project was created at UC San Diego's Engineers for Exploration as an effort to bring the
+data collection of fish population analytics to citizen scientists. To accurate measure a fish under
+water, extensive equipment of exceeding high cost is needed, which is unrealistic in many circumstances.
+FishSense changes this by utilizing the parallax effect to take accurate measurements with a single
+commercially available under water camera and laser, which lowers the cost of entry exponentially.</p>
+<p>However, this system still needs extensive human input as the laser needs to be manually calibrated with
+the camera. Secondly, although lasers under water forms a uniform gaussian distribution, harsh conditions
+means it is currently impossible to get an accurate labeling of the laser reliably, and so human labelers
+have to come in and verify or correct the labels manually. There is also a problem with extensive
+underwater ROV deployments where it would be impossible to calibrate the laser and thus cannot retrieve
+accurate readings.</p>
+<p>To fix this, FishSense Monocular Depth was created, in which we try to create a differentiable underwater
+renderer that can render physically accurate path-traced underwater scenes in the forward path, and using
+these median functions render an existing image under water to get the scene data, and thus the metric
+depth data, in which we can know the length of the fish. This will allow use to utilize essentially any
+under water image and retrieve accurate data without manual efforts, enabling anyone with a camera to be a
+citizen scientist.</p>
+<p>Currently, the state-of-the-art reverse-rendering software is Mitsuba 3, however this renderer presents a
+few issues with underwater images that all relate to the accuracy of IEEE 754 single-precision floating
+point 32 operations and the need for higher accuracy floating point 64 operations.</p>
+<p>The current most accurate underwater color correction and image formation model is <em>Sea-thru</em> from the
+University of Haifa, in which many light interaction functions involve exceedingly small floating point
+numbers. Examples from the supporting documentation <em>A Revised Underwater Image Formation Model</em> include:</p>
+<p>The Back-scatter Function: <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>B</mi><mo stretchy="false">(</mo><mi>z</mi><mo separator="true">,</mo><mi>λ</mi><mo stretchy="false">)</mo><mo>=</mo><mfrac><mrow><mi>b</mi><mo stretchy="false">(</mo><mi>λ</mi><mo stretchy="false">)</mo><mi>E</mi><mo stretchy="false">(</mo><mi>d</mi><mo separator="true">,</mo><mi>λ</mi><mo stretchy="false">)</mo></mrow><mrow><mi>β</mi><mo stretchy="false">(</mo><mi>λ</mi><mo stretchy="false">)</mo></mrow></mfrac><mrow><mo fence="true">(</mo><mn>1</mn><mo>−</mo><msup><mi>e</mi><mrow><mo>−</mo><mi>β</mi><mo stretchy="false">(</mo><mi>λ</mi><mo stretchy="false">)</mo><mi>z</mi></mrow></msup><mo fence="true">)</mo></mrow></mrow><annotation encoding="application/x-tex">B(z, \lambda) = \frac{b(\lambda)E(d, \lambda)}{\beta(\lambda)} \left( 1 - e^
+{-\beta(\lambda)z} \right)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.05017em;">B</span><span class="mopen">(</span><span class="mord mathnormal" style="margin-right:0.04398em;">z</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal">λ</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1.53em;vertical-align:-0.52em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.01em;"><span style="top:-2.655em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.05278em;">β</span><span class="mopen mtight">(</span><span class="mord mathnormal mtight">λ</span><span class="mclose mtight">)</span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.485em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">b</span><span class="mopen mtight">(</span><span class="mord mathnormal mtight">λ</span><span class="mclose mtight">)</span><span class="mord mathnormal mtight" style="margin-right:0.05764em;">E</span><span class="mopen mtight">(</span><span class="mord mathnormal mtight">d</span><span class="mpunct mtight">,</span><span class="mord mathnormal mtight">λ</span><span class="mclose mtight">)</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.52em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="minner"><span class="mopen delimcenter" style="top:0em;"><span class="delimsizing size1">(</span></span><span class="mord">1</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mord"><span class="mord mathnormal">e</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.888em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">−</span><span class="mord mathnormal mtight" style="margin-right:0.05278em;">β</span><span class="mopen mtight">(</span><span class="mord mathnormal mtight">λ</span><span class="mclose mtight">)</span><span class="mord mathnormal mtight" style="margin-right:0.04398em;">z</span></span></span></span></span></span></span></span></span><span class="mclose delimcenter" style="top:0em;"><span class="delimsizing size1">)</span></span></span></span></span></span></p>
+<p>The Radiance Transfer Equation: <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>L</mi><mo stretchy="false">(</mo><mi>d</mi><mo separator="true">;</mo><mi>ξ</mi><mo separator="true">;</mo><mi>λ</mi><mo stretchy="false">)</mo><mo>=</mo><msub><mi>L</mi><mn>0</mn></msub><mo stretchy="false">(</mo><msub><mi>d</mi><mn>0</mn></msub><mo separator="true">;</mo><mi>ξ</mi><mo separator="true">;</mo><mi>λ</mi><mo stretchy="false">)</mo><msup><mi>e</mi><mrow><mo>−</mo><mi>β</mi><mo stretchy="false">(</mo><mi>λ</mi><mo stretchy="false">)</mo><mi>z</mi></mrow></msup><mo>+</mo><mfrac><mrow><msub><mi>L</mi><mo>∗</mo></msub><mo stretchy="false">(</mo><mi>d</mi><mo separator="true">;</mo><mi>ξ</mi><mo separator="true">;</mo><mi>λ</mi><mo stretchy="false">)</mo><msup><mi>e</mi><mrow><mo>−</mo><msub><mi>K</mi><mi>d</mi></msub><mo stretchy="false">(</mo><mi>λ</mi><mo stretchy="false">)</mo><mi>z</mi><mi>cos</mi><mo>⁡</mo><mi>θ</mi></mrow></msup></mrow><mrow><mi>β</mi><mo stretchy="false">(</mo><mi>λ</mi><mo stretchy="false">)</mo><mo>−</mo><msub><mi>K</mi><mi>d</mi></msub><mo stretchy="false">(</mo><mi>λ</mi><mo stretchy="false">)</mo><mi>cos</mi><mo>⁡</mo><mi>θ</mi></mrow></mfrac><mrow><mo fence="true">[</mo><mn>1</mn><mo>−</mo><msup><mi>e</mi><mrow><mo>−</mo><mo stretchy="false">[</mo><mi>β</mi><mo stretchy="false">(</mo><mi>λ</mi><mo stretchy="false">)</mo><mo>−</mo><msub><mi>K</mi><mi>d</mi></msub><mo stretchy="false">(</mo><mi>λ</mi><mo stretchy="false">)</mo><mi>cos</mi><mo>⁡</mo><mi>θ</mi><mo stretchy="false">]</mo><mi>z</mi></mrow></msup><mo fence="true">]</mo></mrow></mrow><annotation encoding="application/x-tex">L(d;\xi;\lambda) = L_0(d_0;\xi;\lambda)e^{-\beta(\lambda)z} + \frac{L_*(d;
+\xi;\lambda)e^{-K_d(\lambda)z\cos\theta}}{\beta(\lambda) - K_d(\lambda)\cos\theta} \left[ 1 - e^{-[\beta
+(\lambda) - K_d(\lambda)\cos\theta]z} \right]</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal">L</span><span class="mopen">(</span><span class="mord mathnormal">d</span><span class="mpunct">;</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal" style="margin-right:0.04601em;">ξ</span><span class="mpunct">;</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal">λ</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1.138em;vertical-align:-0.25em;"></span><span class="mord"><span class="mord mathnormal">L</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">0</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mopen">(</span><span class="mord"><span class="mord mathnormal">d</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">0</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mpunct">;</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal" style="margin-right:0.04601em;">ξ</span><span class="mpunct">;</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal">λ</span><span class="mclose">)</span><span class="mord"><span class="mord mathnormal">e</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.888em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">−</span><span class="mord mathnormal mtight" style="margin-right:0.05278em;">β</span><span class="mopen mtight">(</span><span class="mord mathnormal mtight">λ</span><span class="mclose mtight">)</span><span class="mord mathnormal mtight" style="margin-right:0.04398em;">z</span></span></span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1.6817em;vertical-align:-0.52em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.1617em;"><span style="top:-2.655em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.05278em;">β</span><span class="mopen mtight">(</span><span class="mord mathnormal mtight">λ</span><span class="mclose mtight">)</span><span class="mbin mtight">−</span><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.07153em;">K</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3448em;"><span style="top:-2.3488em;margin-left:-0.0715em;margin-right:0.0714em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord mathnormal mtight">d</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.1512em;"><span></span></span></span></span></span></span><span class="mopen mtight">(</span><span class="mord mathnormal mtight">λ</span><span class="mclose mtight">)</span><span class="mspace mtight" style="margin-right:0.1952em;"></span><span class="mop mtight"><span class="mtight">c</span><span class="mtight">o</span><span class="mtight">s</span></span><span class="mspace mtight" style="margin-right:0.1952em;"></span><span class="mord mathnormal mtight" style="margin-right:0.02778em;">θ</span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.485em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight"><span class="mord mathnormal mtight">L</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1893em;"><span style="top:-2.357em;margin-left:0em;margin-right:0.0714em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mbin mtight">∗</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.143em;"><span></span></span></span></span></span></span><span class="mopen mtight">(</span><span class="mord mathnormal mtight">d</span><span class="mpunct mtight">;</span><span class="mord mathnormal mtight" style="margin-right:0.04601em;">ξ</span><span class="mpunct mtight">;</span><span class="mord mathnormal mtight">λ</span><span class="mclose mtight">)</span><span class="mord mtight"><span class="mord mathnormal mtight">e</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.9667em;"><span style="top:-2.9667em;margin-right:0.0714em;"><span class="pstrut" style="height:2.5357em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord mtight"><span class="mord mtight">−</span><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.07153em;">K</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3448em;"><span style="top:-2.3448em;margin-left:-0.0715em;margin-right:0.1em;"><span class="pstrut" style="height:2.6944em;"></span><span class="mord mathnormal mtight">d</span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.3496em;"><span></span></span></span></span></span></span><span class="mopen mtight">(</span><span class="mord mathnormal mtight">λ</span><span class="mclose mtight">)</span><span class="mord mathnormal mtight" style="margin-right:0.04398em;">z</span><span class="mspace mtight" style="margin-right:0.2453em;"></span><span class="mop mtight"><span class="mtight">c</span><span class="mtight">o</span><span class="mtight">s</span></span><span class="mspace mtight" style="margin-right:0.2453em;"></span><span class="mord mathnormal mtight" style="margin-right:0.02778em;">θ</span></span></span></span></span></span></span></span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.52em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="minner"><span class="mopen delimcenter" style="top:0em;"><span class="delimsizing size1">[</span></span><span class="mord">1</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mord"><span class="mord mathnormal">e</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.888em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">−</span><span class="mopen mtight">[</span><span class="mord mathnormal mtight" style="margin-right:0.05278em;">β</span><span class="mopen mtight">(</span><span class="mord mathnormal mtight">λ</span><span class="mclose mtight">)</span><span class="mbin mtight">−</span><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.07153em;">K</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3448em;"><span style="top:-2.3488em;margin-left:-0.0715em;margin-right:0.0714em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord mathnormal mtight">d</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.1512em;"><span></span></span></span></span></span></span><span class="mopen mtight">(</span><span class="mord mathnormal mtight">λ</span><span class="mclose mtight">)</span><span class="mspace mtight" style="margin-right:0.1952em;"></span><span class="mop mtight"><span class="mtight">c</span><span class="mtight">o</span><span class="mtight">s</span></span><span class="mspace mtight" style="margin-right:0.1952em;"></span><span class="mord mathnormal mtight" style="margin-right:0.02778em;">θ</span><span class="mclose mtight">]</span><span class="mord mathnormal mtight" style="margin-right:0.04398em;">z</span></span></span></span></span></span></span></span></span><span class="mclose delimcenter" style="top:0em;"><span class="delimsizing size1">]</span></span></span></span></span></span></p>
+<p>The image formation model itself: <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>I</mi><mi>c</mi></msub><mo>=</mo><msub><mi>J</mi><mi>c</mi></msub><msup><mi>e</mi><mrow><mo>−</mo><msubsup><mi>β</mi><mi>c</mi><mi>D</mi></msubsup><mo stretchy="false">(</mo><msub><mi mathvariant="bold">v</mi><mi>D</mi></msub><mo stretchy="false">)</mo><mo>⋅</mo><mi>z</mi></mrow></msup><mo>+</mo><msubsup><mi>B</mi><mi>c</mi><mi mathvariant="normal">∞</mi></msubsup><mrow><mo fence="true">(</mo><mn>1</mn><mo>−</mo><msup><mi>e</mi><mrow><mo>−</mo><msubsup><mi>β</mi><mi>c</mi><mi>B</mi></msubsup><mo stretchy="false">(</mo><msub><mi mathvariant="bold">v</mi><mi>B</mi></msub><mo stretchy="false">)</mo><mo>⋅</mo><mi>z</mi></mrow></msup><mo fence="true">)</mo></mrow></mrow><annotation encoding="application/x-tex">I_c = J_c e^{-\beta_c^D (\mathbf{v}_D) \cdot z} + B_c^\infty \left( 1 - 
+e^{-\beta_c^B (\mathbf{v}_B) \cdot z} \right)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.07847em;">I</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em;"><span style="top:-2.55em;margin-left:-0.0785em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">c</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1.1564em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.09618em;">J</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em;"><span style="top:-2.55em;margin-left:-0.0962em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">c</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mord"><span class="mord mathnormal">e</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:1.0064em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">−</span><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.05278em;">β</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.9191em;"><span style="top:-2.214em;margin-left:-0.0528em;margin-right:0.0714em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord mathnormal mtight">c</span></span></span><span style="top:-2.931em;margin-right:0.0714em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord mathnormal mtight" style="margin-right:0.02778em;">D</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.286em;"><span></span></span></span></span></span></span><span class="mopen mtight">(</span><span class="mord mtight"><span class="mord mathbf mtight" style="margin-right:0.01597em;">v</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3448em;"><span style="top:-2.3567em;margin-left:-0.016em;margin-right:0.0714em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord mathnormal mtight" style="margin-right:0.02778em;">D</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.1433em;"><span></span></span></span></span></span></span><span class="mclose mtight">)</span><span class="mbin mtight">⋅</span><span class="mord mathnormal mtight" style="margin-right:0.04398em;">z</span></span></span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1.8em;vertical-align:-0.65em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.05017em;">B</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.6644em;"><span style="top:-2.453em;margin-left:-0.0502em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">c</span></span></span><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">∞</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.247em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="minner"><span class="mopen delimcenter" style="top:0em;"><span class="delimsizing size2">(</span></span><span class="mord">1</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mord"><span class="mord mathnormal">e</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:1.0064em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">−</span><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.05278em;">β</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.9191em;"><span style="top:-2.214em;margin-left:-0.0528em;margin-right:0.0714em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord mathnormal mtight">c</span></span></span><span style="top:-2.931em;margin-right:0.0714em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord mathnormal mtight" style="margin-right:0.05017em;">B</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.286em;"><span></span></span></span></span></span></span><span class="mopen mtight">(</span><span class="mord mtight"><span class="mord mathbf mtight" style="margin-right:0.01597em;">v</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3448em;"><span style="top:-2.3567em;margin-left:-0.016em;margin-right:0.0714em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord mathnormal mtight" style="margin-right:0.05017em;">B</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.1433em;"><span></span></span></span></span></span></span><span class="mclose mtight">)</span><span class="mbin mtight">⋅</span><span class="mord mathnormal mtight" style="margin-right:0.04398em;">z</span></span></span></span></span></span></span></span></span><span class="mclose delimcenter" style="top:0em;"><span class="delimsizing size2">)</span></span></span></span></span></span></p>
+<p>We can see many cases where we involve very small values for <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi></mrow><annotation encoding="application/x-tex">n</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span> in <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>e</mi><mi>n</mi></msup></mrow><annotation encoding="application/x-tex">e^n</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6644em;"></span><span class="mord"><span class="mord mathnormal">e</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.6644em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">n</span></span></span></span></span></span></span></span></span></span></span>, which we suspect would lead to
+numerical stability issues. Some initial tests were conducted where we found an around 0.1‰ chance where
+the difference in value were larger than 10% between fp32 and fp64 operations, which we deemed to be
+unacceptable as an image has millions of light paths, which all have hundreds of interactions. A small
+deviation in the value for our calculation would result a shift in the color it is representing, and also
+an compounding effect for the calculations follow, which is a large problem.</p>
+<p>This is an issue with Mitsuba 3 as renderer uses Nvidia's OptiX platform for path-tracing, which has no
+support for the floating point 64 datatype outright. The CUDA implementation does have support, however it
+is exceedingly slow, and this is compounded by the fact that modern Nvidia GPUs in not only the consumer
+space, but also the workstation space have reduced fp64 throughput in favor of increasing lower accuracy
+fp16 and fp8 performance for machine learning use cases. For example, a RTX PRO 6000 Blackwell, the
+fastest Nvidia GPU avaliable for purchase has a 64 times penalty in FP64 performance, which makes it on
+par with a Quadro K6000 from 2013. This means that we either have to figure out if there is some
+mathematical operations that we can do to solve this inaccuracy, or we have to build something else from
+the ground up to support AMD GPUs that do not have this same issue</p>
+<h2 id="scope-of-work">Scope of Work</h2>
+<p>The goal of this project is to find a way to mathematically reduce the inaccuracy of underwater image
+formation functions and formulate the proof in LEAN, or a proof in LEAN that an adequate amount of
+techniques fail to do this, and therefore determine if it is possible to use floating point 32 for the
+project.</p>
+<p>The coding part of the project would be the LEAN formalization for a method that works, or the proof that
+current methods fail. The documentation part of the project would be to simply document formally the
+mathematical techniques and the LEAN code itself.</p>
+<h2 id="learning-goals">Learning Goals</h2>
+<p>I chose this project because it is tightly related to my research, and it would help me in determining
+next steps as I hope to use this project for my Master's thesis. I hope to apply the lean techniques used
+and also learn about math techniques as I do research on the project.</p>
+<h2 id="works-cited">Works Cited:</h2>
+<p>D. Akkaynak and T. Treibitz. A revised underwater image formation model. In Proc. IEEE CVPR, 2018.</p>
+<p>Merlin Nimier-David, Delio Vicini, Tizian Zeltner, and Wenzel Jakob. 2019. Mitsuba 2: a retargetable
+forward and inverse renderer. ACM Trans. Graph. 38, 6, Article 203 (December 2019), 17 pages.</p>
+
+            <script async src="https://cdn.jsdelivr.net/npm/katex-copytex@latest/dist/katex-copytex.min.js"></script>
+            
+        </body>
+        </html>
