@@ -84,3 +84,4 @@ D. Akkaynak and T. Treibitz. A revised underwater image formation model. In Proc
 
 Merlin Nimier-David, Delio Vicini, Tizian Zeltner, and Wenzel Jakob. 2019. Mitsuba 2: a retargetable 
 forward and inverse renderer. ACM Trans. Graph. 38, 6, Article 203 (December 2019), 17 pages.
+
