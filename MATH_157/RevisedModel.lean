@@ -1,3 +1,4 @@
+import Mathlib
 import MATH_157.BasicIdentities
 
 namespace MATH_157
@@ -6,32 +7,36 @@ open Real
 
 noncomputable section
 
-variable
-  (J B∞ βD βB z : ℝ)
+/--
+Revised image formation model:
+
+I_c = J_c * exp(-betaD * z) + Binf * (1 - exp(-betaB * z))
+-/
+def imageFormation (J Binf betaD betaB z : ℝ) : ℝ :=
+  J * Real.exp (-(betaD * z)) + Binf * (1 - Real.exp (-(betaB * z)))
 
 /--
-Revised image formation model.
+Stable form, exposing the cancellation-sensitive term.
 -/
-def imageFormation : ℝ :=
-  J * Real.exp (-βD * z)
-  +
-  B∞ * (1 - Real.exp (-βB * z))
+def imageFormationStable (J Binf betaD betaB z : ℝ) : ℝ :=
+  J * Real.exp (-(betaD * z)) + Binf * (-(Real.exp (-(betaB * z)) - 1))
 
-/--
-Version exposing cancellation-sensitive term.
--/
-def imageFormationStable : ℝ :=
-  J * Real.exp (-βD * z)
-  +
-  B∞ * (-(Real.exp (-βB * z) - 1))
-
-theorem imageFormation_eq_stable :
-    imageFormation J B∞ βD βB z
+theorem imageFormation_eq_stable
+    (J Binf betaD betaB z : ℝ) :
+    imageFormation J Binf betaD betaB z
       =
-    imageFormationStable J B∞ βD βB z := by
+    imageFormationStable J Binf betaD betaB z := by
   unfold imageFormation imageFormationStable
   rw [one_sub_exp_neg]
-  ring
+
+/--
+Equivalent explicit expansion of the stable rewrite.
+-/
+theorem imageFormation_eq_stable' (J Binf betaD betaB z : ℝ) :
+    imageFormation J Binf betaD betaB z
+      =
+    J * Real.exp (-(betaD * z)) + Binf * (-(Real.exp (-(betaB * z)) - 1)) := by
+  rfl
 
 end
 
