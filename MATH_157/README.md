@@ -24,8 +24,8 @@ This file establishes the foundational library of numerically stable wrappers an
 **Core Mathematical Primitives:**
 * **`expm1(x)`**: Corresponds to $\exp(x) - 1$. Avoids catastrophic cancellation when $x \approx 0$.
 * **`log1p(x)`**: Corresponds to $\log(1 + x)$. 
-* **`stableOneMinusExpNeg(x)`**: Stably computes $1 - \exp(-x)$ via $-\operatorname{expm1}(-x)$.
-* **`stableMinusLogOneMinus(x)`**: Stably computes $-\log(1 - x)$ via $-\operatorname{log1p}(-x)$.
+* **`stableOneMinusExpNeg(x)`**: Stably computes $1 - \exp(-x)$ via $-\mathrm{expm1}(-x)$.
+* **`stableMinusLogOneMinus(x)`**: Stably computes $-\log(1 - x)$ via $-\mathrm{log1p}(-x)$.
 * **`stableLogRatio(a, b)`**: Stably computes $\log(a/b)$ when $a \approx b$ by rewriting it as $\log(1 + \frac{a-b}{b})$.
 
 **The `stableExpDiff` Transformation:**
@@ -55,7 +55,7 @@ $$\exp(-K_d z \cos\theta) \left(1 - \exp(-(\beta - K_d \cos\theta)z)\right)$$
 By distributing the leading exponential, this expands to:
 $$\exp(-K_d z \cos\theta) - \exp(-\beta z)$$
 This matches the exact input signature required for our verified `stableExpDiff(a, b)` where $a = K_d z \cos\theta$ and $b = \beta z$. The stable radiance function is proven mathematically identical:
-$$L_{stable} = L_0 \exp(-\beta z) + \frac{L_s}{\beta - K_d \cos\theta} \times \operatorname{stableExpDiff}(K_d z \cos\theta, \beta z)$$
+$$L_{stable} = L_0 \exp(-\beta z) + \frac{L_s}{\beta - K_d \cos\theta} \times \mathrm{stableExpDiff}(K_d z \cos\theta, \beta z)$$
 
 ### 3. `Backscatter.lean`
 This file isolates the ambient backscatter component of underwater imagery.
