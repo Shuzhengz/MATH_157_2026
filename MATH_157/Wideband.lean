@@ -1,60 +1,60 @@
-import MATH_157.BasicIdentities
 import Mathlib
-
-open MeasureTheory
-open Real
+import MATH_157.BasicIdentities
 
 namespace MATH_157
 
+open Real
+
 noncomputable section
 
-variable
-  (A : ℝ → ℝ)
-  (z Δz : ℝ)
+def directSignal (Sc rho E beta : ℝ → ℝ) (lambda1 lambda2 z : ℝ) : ℝ :=
+  ∫ lam in lambda1..lambda2,
+    Sc lam * rho lam * E lam * Real.exp (-beta lam * z)
 
-/--
-Wideband attenuation coefficient.
--/
-def betaD : ℝ :=
-  Real.log (A z / A (z + Δz)) / Δz
+def directSignalNext (Sc rho E beta : ℝ → ℝ) (lambda1 lambda2 z dz : ℝ) : ℝ :=
+  ∫ lam in lambda1..lambda2,
+    Sc lam * rho lam * E lam * Real.exp (-beta lam * (z + dz))
 
-/--
-Stable log-difference form.
--/
-def betaDStable : ℝ :=
-  (Real.log (A z) - Real.log (A (z + Δz)))
-    / Δz
+def betaDOriginal (Sc rho E beta : ℝ → ℝ) (lambda1 lambda2 z dz : ℝ) : ℝ :=
+  Real.log
+      (directSignal Sc rho E beta lambda1 lambda2 z /
+       directSignalNext Sc rho E beta lambda1 lambda2 z dz) / dz
 
-theorem betaD_eq_stable
-    (hz : 0 < A z)
-    (hz' : 0 < A (z + Δz)) :
-    betaD A z Δz
-      =
-    betaDStable A z Δz := by
-  unfold betaD betaDStable
-  rw [log_div_rewrite hz hz']
+def betaDStable (Sc rho E beta : ℝ → ℝ) (lambda1 lambda2 z dz : ℝ) : ℝ :=
+  (Real.log (directSignal Sc rho E beta lambda1 lambda2 z) -
+   Real.log (directSignalNext Sc rho E beta lambda1 lambda2 z dz)) / dz
 
-/--
-Backscatter coefficient.
--/
-def betaB (x z : ℝ) : ℝ :=
-  -Real.log (1 - x) / z
+def backscatterRatio (Sc Binf beta : ℝ → ℝ) (lambda1 lambda2 z : ℝ) : ℝ :=
+  (∫ lam in lambda1..lambda2,
+      Sc lam * Binf lam * (1 - Real.exp (-beta lam * z))) /
+  (∫ lam in lambda1..lambda2, Binf lam * Sc lam)
 
-/--
-Equivalent reciprocal form.
--/
-def betaBStable (x z : ℝ) : ℝ :=
-  Real.log ((1 - x)⁻¹) / z
+def betaBOriginal (Sc Binf beta : ℝ → ℝ) (lambda1 lambda2 z : ℝ) : ℝ :=
+  -Real.log (1 - backscatterRatio Sc Binf beta lambda1 lambda2 z) / z
 
-theorem betaB_eq_stable
-    {x z : ℝ}
-    (hx : x < 1) :
-    betaB x z
-      =
-    betaBStable x z := by
-  unfold betaB betaBStable
-  rw [neg_log_one_sub hx]
+def betaBStable (Sc Binf beta : ℝ → ℝ) (lambda1 lambda2 z : ℝ) : ℝ :=
+  stableMinusLogOneMinus (backscatterRatio Sc Binf beta lambda1 lambda2 z) / z
 
 end
+
+theorem betaD_eq_stable
+    (Sc rho E beta : ℝ → ℝ) (lambda1 lambda2 z dz : ℝ)
+    (hz : 0 < directSignal Sc rho E beta lambda1 lambda2 z)
+    (hz' : 0 < directSignalNext Sc rho E beta lambda1 lambda2 z dz) :
+    betaDOriginal Sc rho E beta lambda1 lambda2 z dz
+      =
+    betaDStable Sc rho E beta lambda1 lambda2 z dz := by
+  unfold betaDOriginal betaDStable
+  have hA : directSignal Sc rho E beta lambda1 lambda2 z ≠ 0 := ne_of_gt hz
+  have hB : directSignalNext Sc rho E beta lambda1 lambda2 z dz ≠ 0 := ne_of_gt hz'
+  simpa using (congrArg (fun t : ℝ => t / dz) (Real.log_div hA hB))
+
+theorem betaB_eq_stable
+    (Sc Binf beta : ℝ → ℝ) (lambda1 lambda2 z : ℝ) :
+    betaBOriginal Sc Binf beta lambda1 lambda2 z
+      =
+    betaBStable Sc Binf beta lambda1 lambda2 z := by
+  unfold betaBOriginal betaBStable
+  rw [stableMinusLogOneMinus_eq]
 
 end MATH_157
