@@ -2,7 +2,6 @@ name = "MATH_157"
 version = "0.1.0"
 keywords = ["math"]
 defaultTargets = ["«MATH_157»"]
-lintDriver = "batteries/runLinter"
 
 [leanOptions]
 pp.unicode.fun = true # pretty-prints `fun a ↦ b`
