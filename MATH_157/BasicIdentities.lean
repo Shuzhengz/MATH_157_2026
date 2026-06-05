@@ -97,9 +97,16 @@ Instead, we define the mathematical foundation that allows the CPU to execute
 from n=1, the hardware bypasses the unstable 1 - 1 subtraction entirely.
 -/
 
-/-- The Taylor series terms for expm1, analytically bypassing the 0th term (1) -/
+/--
+The Taylor series terms for expm1, analytically bypassing the 0th term (1)
+-/
 noncomputable def expm1_taylor_term (x : ℝ) (n : ℕ) : ℝ :=
   (x ^ (n + 1)) / ((n + 1).factorial : ℝ)
+
+/-
+It reached 200000 somehow
+-/
+set_option maxHeartbeats 500000
 
 /--
 This theorem asserts the algebraic equivalence between the exact real formula
@@ -107,11 +114,20 @@ and the infinite polynomial series used by standard math libraries.
 -/
 theorem expm1_eq_taylor_series (x : ℝ) :
     Filter.Tendsto (fun k => ∑ i ∈ Finset.range k, expm1_taylor_term x i)
-    Filter.atTop (nhds (expm1 x)) := by
-  -- The rigorous topological proof requires mapping `Real.hasSum_exp` through
-  -- index shifting lemmas (e.g., `hasSum_nat_add_iff`). Because Mathlib 4
-  -- series APIs are highly volatile across versions, we omit the raw topological
-  -- expansion here and treat it as the accepted axiom of our stable formulation.
-  sorry
+      Filter.atTop (nhds (expm1 x)) := by
+  let f : ℕ → ℝ := fun n => x ^ n / ((n.factorial : ℕ) : ℝ)
+
+  have hf : HasSum f (Real.exp x) := by
+    simpa [f, Real.exp_eq_exp_ℝ] using
+      (NormedSpace.expSeries_div_hasSum_exp (x := x))
+
+  have htail : HasSum (fun n : ℕ => f (n + 1)) (Real.exp x - 1) := by
+    simpa [f] using
+      ((hasSum_nat_add_iff' (f := f) (k := 1) (g := Real.exp x)).2 hf)
+
+  have htail' : HasSum (fun n : ℕ => expm1_taylor_term x n) (expm1 x) := by
+    simpa [f, expm1_taylor_term, expm1] using htail
+
+  simpa using htail'.tendsto_sum_nat
 
 end MATH_157
