@@ -1,9 +1,5 @@
 # Mathematical Function Reference: Original vs. Stable Formulations
 
-When implemented in floating-point arithmetic, standard analytical equations for underwater image formation often suffer from catastrophic cancellation (especially when evaluating the difference between two similar numbers) or precision loss near zero. 
-
-This document provides a side-by-side comparison of the mathematical functions defined in the `MATH_157` Lean 4 formalization. The **Original Formulation** represents the standard algebraic definition, while the **Stable Formulation** utilizes robust primitives like $\mathrm{expm1}$ and $\mathrm{log1p}$ to preserve numerical precision.
-
 ## 1. Core Primitives (`BasicIdentities.lean`)
 
 These are the fundamental building blocks used to eliminate precision loss in exponential and logarithmic operations.

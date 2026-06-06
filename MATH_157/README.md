@@ -1,107 +1,449 @@
-# MATH 157: Numerically Stable Underwater Image Formation Models
+# MATH_157
 
-This repository contains Lean 4 formalizations for numerically stable models of underwater image formation, radiative transfer, and wideband signal attenuation. Floating-point arithmetic introduces significant precision losses when calculating the differences between numbers of similar magnitude, particularly in exponential and logarithmic decay models. This project bridges standard algebraic formulations with numerically robust equivalents using Lean 4 to formally verify their exact equivalence in the real numbers ($\mathbb{R}$).
+The project proves exact equalities over $\mathbb{R}$ such as:
 
----
+- $1 - e^{-x} = -expm1(-x)$
+- $\log(a/b) = \log(a) - \log(b)$
+- $e^{-a} - e^{-b} = stableExpDiff(a,b)$
 
-## Repository Structure
+The development does **not** prove IEEE-754 error bounds. Instead, it proves that the original underwater 
+imaging equations are mathematically equivalent to forms commonly used in numerically stable 
+implementations.
 
-| File | Purpose | Core Concepts |
-| :--- | :--- | :--- |
-| **`BasicIdentities.lean`** | Foundational stability primitives. | Wrappers for `expm1`, `log1p`, and robust difference-of-exponentials. |
-| **`RTE.lean`** | Radiative Transfer Equation. | Verifying stable radiance derivations for underwater light transport. |
-| **`Backscatter.lean`** | Veiling light and backscatter. | Formalizing the backscatter term and its asymptotic limits. |
-| **`Wideband.lean`** | Wideband spectrum analysis. | Signal integrations, direct attenuation ($\beta_D$), and backscatter ($\beta_B$). |
-| **`RevisedModel.lean`** | Final Image Formation Model. | The synthesized underwater image formation model incorporating stable primitives. |
+Thus, we are here using the assumption that FP32 is sufficient for x ≪ 1 when x is not a power of e.
 
----
+Specifically, it tries to prove that there is a way to rewrite the follow equations so that they are 
+stable:
 
-## Detailed File Documentation
+### The Radiance Transfer Equation
 
-### 1. `BasicIdentities.lean`
-This file establishes the foundational library of numerically stable wrappers and proves their mathematical equivalence to their naive, potentially unstable counterparts.
+$L(d;\xi;\lambda) = L_0(d_0;\xi;\lambda)e^{-\beta(\lambda)z} + \frac{L_*(d;\xi;\lambda)e^{-K_d(\lambda)
+z\cos\theta}} {\beta(\lambda) - K_d(\lambda)\cos\theta} \left[ 1 - e^{-[\beta(\lambda) - K_d(\lambda)
+\cos\theta]z} \right]$
 
-**Core Mathematical Primitives:**
-* **`expm1(x)`**: Corresponds to $\exp(x) - 1$. Avoids catastrophic cancellation when $x \approx 0$.
-* **`log1p(x)`**: Corresponds to $\log(1 + x)$. 
-* **`stableOneMinusExpNeg(x)`**: Stably computes $1 - \exp(-x)$ via $-\mathrm{expm1}(-x)$.
-* **`stableMinusLogOneMinus(x)`**: Stably computes $-\log(1 - x)$ via $-\mathrm{log1p}(-x)$.
-* **`stableLogRatio(a, b)`**: Stably computes $\log(a/b)$ when $a \approx b$ by rewriting it as $\log(1 + \frac{a-b}{b})$.
+### The Backscatter and Veling Light signals
 
-**The `stableExpDiff` Transformation:**
-A recurring source of numerical instability is calculating $\exp(-a) - \exp(-b)$ when $a \approx b$. `stableExpDiff` factors out the smaller exponent to guarantee precision.
+Backscatter:
 
-**Proof Process:**
-The central theorem `exp_subexp` proves that:
-$$\exp(-a)(1 - \exp(-(b - a))) = \exp(-a) - \exp(-b)$$
+$B(z, \lambda) = \frac{b(\lambda)E(d, \lambda)}{\beta(\lambda)} \left( 1 - e^{-\beta(\lambda)z} \right)$
 
-This is verified by expanding the multiplication:
-$$\exp(-a) - \exp(-a)\exp(-(b - a))$$
-Using the law of exponents $\exp(x)\exp(y) = \exp(x+y)$, the second term simplifies cleanly to:
-$$\exp(-a - b + a) = \exp(-b)$$
+Veiling Light (Backscatter as $z \rArr \infty$)
 
-The function `stableExpDiff` employs a piecewise check (`if a ≤ b`) to ensure the factored exponent is always negative, guarding against overflow.
+$B^\infty(\lambda) = \frac{b(\lambda)E(d,\lambda)}{\beta(\lambda)}$
 
-### 2. `RTE.lean`
-This module models the Radiative Transfer Equation for a specific directional light source. 
+### Wideband Attenuation Coefficients
 
-**Original Radiance Model:**
-The classical formulation for the radiance $L$ at depth $z$ is:
-$$L_{orig} = L_0 \exp(-\beta z) + \frac{L_s \exp(-K_d z \cos\theta)}{\beta - K_d \cos\theta} \left(1 - \exp(-(\beta - K_d \cos\theta)z)\right)$$
+$\beta_c^D = \ln \left[ \frac{\int_{\lambda_1}^{\lambda_2} S_c(\lambda)\rho(\lambda)E(d,\lambda)e^{-\beta
+(\lambda)z}d\lambda}{\int_ {\lambda_1}^{\lambda_2} S_c(\lambda)\rho(\lambda)E(d,\lambda)e^{-\beta(\lambda)
+(z+\Delta z)}d\lambda} \right] / \Delta z$
 
-**Stable Form & Proof Process:**
-The rightmost terms contain a hidden difference of exponentials that causes precision loss in simulation. The theorem `radiance_eq_stable` rewrites the attenuation factor:
-$$\exp(-K_d z \cos\theta) \left(1 - \exp(-(\beta - K_d \cos\theta)z)\right)$$
-By distributing the leading exponential, this expands to:
-$$\exp(-K_d z \cos\theta) - \exp(-\beta z)$$
-This matches the exact input signature required for our verified `stableExpDiff(a, b)` where $a = K_d z \cos\theta$ and $b = \beta z$. The stable radiance function is proven mathematically identical:
-$$L_{stable} = L_0 \exp(-\beta z) + \frac{L_s}{\beta - K_d \cos\theta} \times \mathrm{stableExpDiff}(K_d z \cos\theta, \beta z)$$
+### Wideband Backscatter Coefficient
 
-### 3. `Backscatter.lean`
-This file isolates the ambient backscatter component of underwater imagery.
+$\beta_c^B = -\ln \left( 1 - \frac{\int_{\lambda_1}^{\lambda_2} S_c(\lambda) B^\infty(\lambda) (1 - e^
+{-\beta(\lambda)z}) d\lambda} {\int_{\lambda_1}^{\lambda_2} B^\infty(\lambda) S_c(\lambda) d\lambda} 
+\right) / z$
 
-**Original Backscatter Model:**
-$$B(z) = B_\infty (1 - \exp(-\beta z))$$
-where the veiling light limit $B_\infty$ is defined as $\frac{b E}{\beta}$.
 
-**Stability Theorem:**
-The theorem `backscatter_eq_stable` replaces the vulnerable $1 - \exp(-\beta z)$ operation with the verified `stableOneMinusExpNeg(\beta z)`.
+### Revised Image Formation Model
 
-### 4. `Wideband.lean`
-Real-world underwater imaging is wideband (capturing a range of wavelengths $\lambda$), requiring integration across the spectrum.
+$I_c = J_c e^{-\beta_c^D (\mathbf{v}_D) \cdot z} + B_c^\infty \left( 1 - e^{-\beta_c^B (\mathbf{v}_B) 
+\cdot z} \right)$
 
-**Direct Signal Attenuation ($\beta_D$):**
-The wideband direct signal is formulated as an integral over the sensor band $[\lambda_1, \lambda_2]$:
-$$D(z) = \int_{\lambda_1}^{\lambda_2} S_c(\lambda) \rho(\lambda) E(\lambda) \exp(-\beta(\lambda) z) \, d\lambda$$
-The direct attenuation coefficient is derived as:
-$$\beta_D = \frac{1}{dz} \log\left( \frac{D(z)}{D(z+dz)} \right)$$
-Because $D(z) \approx D(z+dz)$ for small $dz$, the log quotient is unstable. `betaD_eq_stable` applies the logarithm quotient rule ($\log(A/B) = \log(A) - \log(B)$) for strict evaluation:
-$$\beta_D = \frac{\log(D(z)) - \log(D(z+dz))}{dz}$$
 
-**Backscatter Attenuation ($\beta_B$):**
-The effective backscatter coefficient is dependent on a defined backscatter ratio $R_B$:
-$$\beta_B = \frac{-\log(1 - R_B)}{z}$$
-Using the theorem `betaB_eq_stable`, this is mapped strictly to the `stableMinusLogOneMinus(R_B)` definition.
-
-### 5. `RevisedModel.lean`
-This integrates the findings from wideband analysis and basic RTE derivation into the final robust underwater image formation model.
-
-**Image Formation:**
-$$I(z) = J \exp(-\beta_D z) + B_\infty (1 - \exp(-\beta_B z))$$
-Where:
-* $J$ is the signal intensity.
-* $\beta_D$ is the wideband direct attenuation coefficient.
-* $B_\infty$ is the wideband veiling light.
-* $\beta_B$ is the wideband backscatter coefficient.
-
-**Stability Theorem:**
-`imageFormation_eq_stable` simply applies the ring normalizer and algebraic rewriting to substitute the naive expression with the robust `stableOneMinusExpNeg(\beta_B z)`.
 
 ---
 
-## Building and Verification
-To compile the proofs and verify all stability substitutions mathematically, ensure Lean 4 and Mathlib are installed.
+# BasicIdentities.lean
 
-1. Navigate to the project directory.
-2. Run `lake build` to verify the proofs in the `MATH_157` namespace.
-3. A successful build guarantees that every stable formulation is algebraically identical to the original continuous models.
+This file contains the reusable algebraic identities.
+
+## `expm1`
+
+Lean definition:
+
+    def expm1 (x : ℝ) : ℝ :=
+      Real.exp x - 1
+
+Mathematical meaning:
+
+$expm1(x) = e^x - 1$
+
+---
+
+## `log1p`
+
+Lean definition:
+
+    def log1p (x : ℝ) : ℝ :=
+      Real.log (1 + x)
+
+Mathematical meaning:
+
+$log1p(x) = \log(1+x)$
+
+---
+
+## `stableOneMinusExpNeg`
+
+Lean definition:
+
+    def stableOneMinusExpNeg (x : ℝ) : ℝ :=
+      -expm1 (-x)
+
+Mathematical meaning:
+
+$1 - e^{-x}$
+
+using the identity
+
+$1 - e^{-x} = -expm1(-x)$.
+
+---
+
+## `stableLogRatio`
+
+Lean definition:
+
+    def stableLogRatio (a b : ℝ) : ℝ :=
+      stableLog1p ((a - b) / b)
+
+Mathematical meaning:
+
+$\log(a/b)$
+
+rewritten as
+
+$\log\!\left(1 + \frac{a-b}{b}\right)$.
+
+This is useful when $a \approx b$.
+
+---
+
+## `stableMinusLogOneMinus`
+
+Lean definition:
+
+    def stableMinusLogOneMinus (x : ℝ) : ℝ :=
+      -stableLog1p (-x)
+
+Mathematical meaning:
+
+$-\log(1-x)$.
+
+---
+
+## `stableExpDiff`
+
+Lean definition:
+
+    def stableExpDiff (a b : ℝ) : ℝ := ...
+
+Mathematical meaning:
+
+$e^{-a} - e^{-b}$
+
+without directly subtracting exponentials.
+
+If $a \le b$:
+
+$e^{-a} - e^{-b} =
+e^{-a}(1-e^{-(b-a)})$
+
+If $b < a$:
+
+$e^{-a} - e^{-b} =
+-e^{-b}(1-e^{-(a-b)})$
+
+This avoids cancellation when $a \approx b$.
+
+---
+
+# Backscatter.lean
+
+## `veilingLight`
+
+Represents
+
+$B^\infty = \frac{bE}{\beta}$
+
+where:
+
+- $b$ is the scattering coefficient
+- $E$ is irradiance
+- $\beta$ is attenuation
+
+---
+
+## `backscatterOriginal`
+
+Represents
+
+$B(z) =
+B^\infty(1-e^{-\beta z})$.
+
+---
+
+## `backscatterStable`
+
+Represents
+
+$B(z) =
+B^\infty\left(-expm1(-\beta z)\right)$.
+
+---
+
+## `backscatter_eq_stable`
+
+Proves
+
+$\texttt{backscatterOriginal} =
+\texttt{backscatterStable}$.
+
+---
+
+# RevisedModel.lean
+
+## `imageFormationOriginal`
+
+Represents
+
+$I =
+J e^{-\beta_D z}
++
+B^\infty(1-e^{-\beta_B z})$.
+
+---
+
+## `imageFormationStable`
+
+Represents
+
+$I =
+J e^{-\beta_D z}
++
+B^\infty\left(-expm1(-\beta_B z)\right)$.
+
+---
+
+## `imageFormation_eq_stable`
+
+Proves exact equality between the original and stable formulations.
+
+---
+
+# RTE.lean
+
+## `radianceOriginal`
+
+Represents
+
+$L = L_0 e^{-\beta z}
++
+\frac{
+L_s e^{-K_d z\cos\theta}
+}{
+\beta-K_d\cos\theta
+}
+\left(
+1-e^{-(\beta-K_d\cos\theta)z}
+\right)$.
+
+---
+
+## `radianceStable`
+
+Represents
+
+$L =
+L_0 e^{-\beta z}
++
+\frac{L_s}{\beta-K_d\cos\theta}
+stableExpDiff
+(K_d z\cos\theta,\beta z)$.
+
+---
+
+## `radiance_eq_stable`
+
+Proves exact equality between the two forms.
+
+---
+
+# Wideband.lean
+
+## `directSignal`
+
+Represents
+
+$D(z)=
+\int_{\lambda_1}^{\lambda_2}
+S_c(\lambda)
+\rho(\lambda)
+E(\lambda)
+e^{-\beta(\lambda)z}
+\,d\lambda$.
+
+---
+
+## `directSignalNext`
+
+Represents
+
+$D(z+\Delta z)$.
+
+---
+
+## `betaDOriginal`
+
+Represents
+
+$\beta_c^D =
+\frac{
+\log(D(z)/D(z+\Delta z))
+}{
+\Delta z
+}$.
+
+---
+
+## `betaDStable`
+
+Represents
+
+$\beta_c^D =
+\frac{
+\log D(z) - \log D(z+\Delta z)
+}{
+\Delta z
+}$.
+
+---
+
+## `betaD_eq_stable`
+
+Proves
+
+$\beta_c^D(\text{original}) =
+\beta_c^D(\text{stable})$.
+
+---
+
+## `backscatterRatio`
+
+Represents
+
+$R =
+\frac{
+\int
+S_c(\lambda)
+B^\infty(\lambda)
+(1-e^{-\beta(\lambda)z})
+\,d\lambda
+}{
+\int
+S_c(\lambda)
+B^\infty(\lambda)
+\,d\lambda
+}$.
+
+---
+
+## `betaBOriginal`
+
+Represents
+
+$\beta_c^B =
+-\frac{\log(1-R)}{z}$.
+
+---
+
+## `betaBStable`
+
+Represents
+
+$\beta_c^B=
+\frac{
+-\log1p(-R)
+}{
+z
+}$.
+
+---
+
+## `betaB_eq_stable`
+
+Proves exact equality between the two forms.
+
+---
+
+# What Is Proven
+
+The project proves exact identities over $\mathbb{R}$, including:
+
+- $1-e^{-x} = -expm1(-x)$
+- $\log(a/b)=\log(a)-\log(b)$
+- $e^{-a}-e^{-b}=stableExpDiff(a,b)$
+
+and the corresponding identities for:
+
+- backscatter models
+- radiance transfer models
+- revised image formation models
+- wideband attenuation coefficients
+- wideband backscatter coefficients
+
+---
+
+# What Is Not Proven
+
+The project does not currently prove:
+
+- FP32 error bounds
+- FP64 error bounds
+- IEEE-754 correctness
+
+Those require a separate formal floating-point semantics and is outside the scope of this project
+
+---
+
+# Interpretation
+
+The Lean proofs establish that the stable formulations are exactly equal to the original underwater imaging equations over $\mathbb{R}$.
+
+A future project could build on these specifications to formally verify floating-point implementations and 
+derive rigorous FP32/FP64 error bounds.
+
+
+---
+
+# Math Symbol Reference Table
+
+| Variable | Description |
+| :--- | :--- |
+| $\lambda$ | wavelength |
+| $a(\lambda)$ | beam absorption coefficient |
+| $b(\lambda)$ | beam scattering coefficient |
+| $\beta(\lambda)$ | beam attenuation coefficient: $a(\lambda) + b(\lambda)$ |
+| $K_d(\lambda)$ | diffuse downwelling attenuation coefficient |
+| $E(z, \lambda)$ | irradiance |
+| $L(z, \lambda)$ | radiance |
+| $Y$ | luminance |
+| $S_c(\lambda)$ | sensor spectral response |
+| $\rho(\lambda)$ | reflectance |
+| $B^\infty(\lambda)$ | veiling light |
+| $c$ | color channels R,G,B |
+| $\beta_c$ | wideband attenuation coefficient |
+| $B_c^\infty$ | wideband veiling light |
+| $I_c$ | RGB image with attenuated signal |
+| $J_c$ | RGB image with unattenuated signal |
+| $d$ | depth (vertical range) |
+| $z$ | range along LOS |
+| $\xi$ | direction in 3-space |
+| $B$ | backscattered light |
+| $D$ | direct transmitted light |
+| $F$ | forward scattered light |
+| AOP | apparent optical properties |
+| IOP | inherent optical properties |
+| LOS | line of sight |
+| RTE | radiance transfer equation |
+| VSF | volume scattering function |
