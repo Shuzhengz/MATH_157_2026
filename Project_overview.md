@@ -232,7 +232,8 @@ the groundwork with the FishSense project and some ideas for Monocular Depth.
 Because this is an AI-open course, I utilized Google Gemini to generate some documentation for the project, 
 as well as try to complete theorems that are too hard to tackle by hand and suggesting on intermediate 
 approach methods to some problems. This would not have an impact on the results of this project as LEAN 
-checks strictly on mathematical theorems.
+checks strictly on mathematical theorems. I also used LLM to do some busywork like converting an equation 
+into LaTeX, markdown, etc.
 
 No LLM was used to write this paper.
 
