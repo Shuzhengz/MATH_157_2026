@@ -4,4 +4,5 @@
 *.css linguist-documentation
 *.html linguist-documentation
 *.htm linguist-documentation
+*.js linguist-documentation
 *.tex linguist-documentation
