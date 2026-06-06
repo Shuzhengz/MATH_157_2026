@@ -158,6 +158,26 @@ This avoids cancellation when $a \approx b$.
 
 ---
 
+## `expm1_taylor_term`
+
+Mathematical meaning:
+
+expm1_taylor_term $:= \frac{x^{n+1}}{(n+1)!}, \quad \text{where } x \in \mathbb{R}, n \in \mathbb{N}$
+
+defines the n-th term of the Taylor series for `expm1`, but starting at the first nonzero term
+
+---
+
+## `expm1_eq_taylor_series`
+
+Mathematical Meaning:
+
+$\sum_{i=0}^{k-1} \frac{x^{i+1}}{(i+1)!} \to e^x - 1 \quad \text{as } k \to \infty.$
+
+Proves that the infinite taylor series of `expm1_taylor_term` approaches `expm1`
+
+---
+
 # Backscatter.lean
 
 ## `veilingLight`

@@ -24,6 +24,9 @@ Models the radiance $L$ at depth $z$ for a directional light source, factoring o
 | :--- | :--- | :--- |
 | **Original** | $L_0 e^{-\beta z} + \frac{L_s e^{-K_d z \cos\theta}}{\beta - K_d \cos\theta} \left(1 - e^{-(\beta - K_d \cos\theta)z}\right)$ | `radianceOriginal` |
 | **Stable** | $L_0 e^{-\beta z} + \frac{L_s}{\beta - K_d \cos\theta} \times \mathrm{stableExpDiff}(K_d z \cos\theta, \beta z)$ | `radianceStable` |
+When implemented in floating-point arithmetic, standard analytical equations for underwater image formation often suffer from catastrophic cancellation (especially when evaluating the difference between two similar numbers) or precision loss near zero. 
+
+This document provides a side-by-side comparison of the mathematical functions defined in the `MATH_157` Lean 4 formalization. The **Original Formulation** represents the standard algebraic definition, while the **Stable Formulation** utilizes robust primitives like $\mathrm{expm1}$ and $\mathrm{log1p}$ to preserve numerical precision.
 
 ---
 
