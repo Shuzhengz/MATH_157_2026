@@ -4,9 +4,9 @@ A Lean 4 / Mathlib formalization of exact real-valued underwater image formation
 
 The project proves exact equalities over $\mathbb{R}$ such as:
 
-- $1 - e^{-x} = -\operatorname{expm1}(-x)$
+- $1 - e^{-x} = -expm1(-x)$
 - $\log(a/b) = \log(a) - \log(b)$
-- $e^{-a} - e^{-b} = \operatorname{stableExpDiff}(a,b)$
+- $e^{-a} - e^{-b} = stableExpDiff(a,b)$
 
 The development does **not** prove IEEE-754 error bounds. Instead, it proves that the original underwater imaging equations are mathematically equivalent to forms commonly used in numerically stable implementations.
 
@@ -25,7 +25,7 @@ Lean definition:
 
 Mathematical meaning:
 
-$\operatorname{expm1}(x) = e^x - 1$
+$expm1(x) = e^x - 1$
 
 ---
 
@@ -38,7 +38,7 @@ Lean definition:
 
 Mathematical meaning:
 
-$\operatorname{log1p}(x) = \log(1+x)$
+$log1p(x) = \log(1+x)$
 
 ---
 
@@ -55,7 +55,7 @@ $1 - e^{-x}$
 
 using the identity
 
-$1 - e^{-x} = -\operatorname{expm1}(-x)$.
+$1 - e^{-x} = -expm1(-x)$.
 
 ---
 
@@ -105,14 +105,12 @@ without directly subtracting exponentials.
 
 If $a \le b$:
 
-$e^{-a} - e^{-b}
-=
+$e^{-a} - e^{-b} =
 e^{-a}(1-e^{-(b-a)})$
 
 If $b < a$:
 
-$e^{-a} - e^{-b}
-=
+$e^{-a} - e^{-b} =
 -e^{-b}(1-e^{-(a-b)})$
 
 This avoids cancellation when $a \approx b$.
@@ -139,8 +137,7 @@ where:
 
 Represents
 
-$B(z)
-=
+$B(z) =
 B^\infty(1-e^{-\beta z})$.
 
 ---
@@ -149,9 +146,8 @@ B^\infty(1-e^{-\beta z})$.
 
 Represents
 
-$B(z)
-=
-B^\infty\left(-\operatorname{expm1}(-\beta z)\right)$.
+$B(z) =
+B^\infty\left(-expm1(-\beta z)\right)$.
 
 ---
 
@@ -159,8 +155,7 @@ B^\infty\left(-\operatorname{expm1}(-\beta z)\right)$.
 
 Proves
 
-$\texttt{backscatterOriginal}
-=
+$\texttt{backscatterOriginal} =
 \texttt{backscatterStable}$.
 
 ---
@@ -171,8 +166,7 @@ $\texttt{backscatterOriginal}
 
 Represents
 
-$I
-=
+$I =
 J e^{-\beta_D z}
 +
 B^\infty(1-e^{-\beta_B z})$.
@@ -183,11 +177,10 @@ B^\infty(1-e^{-\beta_B z})$.
 
 Represents
 
-$I
-=
+$I =
 J e^{-\beta_D z}
 +
-B^\infty\left(-\operatorname{expm1}(-\beta_B z)\right)$.
+B^\infty\left(-expm1(-\beta_B z)\right)$.
 
 ---
 
@@ -203,9 +196,7 @@ Proves exact equality between the original and stable formulations.
 
 Represents
 
-$L
-=
-L_0 e^{-\beta z}
+$L = L_0 e^{-\beta z}
 +
 \frac{
 L_s e^{-K_d z\cos\theta}
@@ -222,12 +213,11 @@ L_s e^{-K_d z\cos\theta}
 
 Represents
 
-$L
-=
+$L =
 L_0 e^{-\beta z}
 +
 \frac{L_s}{\beta-K_d\cos\theta}
-\operatorname{stableExpDiff}
+stableExpDiff
 (K_d z\cos\theta,\beta z)$.
 
 ---
@@ -244,8 +234,7 @@ Proves exact equality between the two forms.
 
 Represents
 
-$D(z)
-=
+$D(z)=
 \int_{\lambda_1}^{\lambda_2}
 S_c(\lambda)
 \rho(\lambda)
@@ -267,8 +256,7 @@ $D(z+\Delta z)$.
 
 Represents
 
-$\beta_c^D
-=
+$\beta_c^D =
 \frac{
 \log(D(z)/D(z+\Delta z))
 }{
@@ -281,12 +269,9 @@ $\beta_c^D
 
 Represents
 
-$\beta_c^D
-=
+$\beta_c^D =
 \frac{
-\log D(z)
--
-\log D(z+\Delta z)
+\log D(z) - \log D(z+\Delta z)
 }{
 \Delta z
 }$.
@@ -297,8 +282,7 @@ $\beta_c^D
 
 Proves
 
-$\beta_c^D(\text{original})
-=
+$\beta_c^D(\text{original}) =
 \beta_c^D(\text{stable})$.
 
 ---
@@ -307,8 +291,7 @@ $\beta_c^D(\text{original})
 
 Represents
 
-$R
-=
+$R =
 \frac{
 \int
 S_c(\lambda)
@@ -328,8 +311,7 @@ B^\infty(\lambda)
 
 Represents
 
-$\beta_c^B
-=
+$\beta_c^B =
 -\frac{\log(1-R)}{z}$.
 
 ---
@@ -338,10 +320,9 @@ $\beta_c^B
 
 Represents
 
-$\beta_c^B
-=
+$\beta_c^B=
 \frac{
--\operatorname{log1p}(-R)
+-\log1p(-R)
 }{
 z
 }$.
@@ -358,9 +339,9 @@ Proves exact equality between the two forms.
 
 The project proves exact identities over $\mathbb{R}$, including:
 
-- $1-e^{-x} = -\operatorname{expm1}(-x)$
+- $1-e^{-x} = -expm1(-x)$
 - $\log(a/b)=\log(a)-\log(b)$
-- $e^{-a}-e^{-b}=\operatorname{stableExpDiff}(a,b)$
+- $e^{-a}-e^{-b}=stableExpDiff(a,b)$
 
 and the corresponding identities for:
 
@@ -379,19 +360,14 @@ The project does not currently prove:
 - FP32 error bounds
 - FP64 error bounds
 - IEEE-754 correctness
-- forward stability
-- backward stability
-- ulp bounds
-- overflow/underflow guarantees
 
-Those require a separate formal floating-point semantics.
+Those require a separate formal floating-point semantics and is outside the scope of this project
 
 ---
 
 # Interpretation
 
-This project should be viewed as a mathematical specification layer.
-
 The Lean proofs establish that the stable formulations are exactly equal to the original underwater imaging equations over $\mathbb{R}$.
 
-A future project could build on these specifications to formally verify floating-point implementations and derive rigorous FP32/FP64 error bounds.
+A future project could build on these specifications to formally verify floating-point implementations and 
+derive rigorous FP32/FP64 error bounds.

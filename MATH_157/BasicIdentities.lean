@@ -92,6 +92,9 @@ NOTE: In the exact real numbers (ℝ), `Real.exp x - 1` has no rounding error.
 To formally prove "stability," one must model IEEE-754 floating-point arithmetic
 and prove relative error bounds, which is outside the scope of exact real analysis.
 
+Thus, we are here using the assumption that FP32 is sufficient for x ≪ 1 when
+x is not a power of e
+
 Instead, we define the mathematical foundation that allows the CPU to execute
 `expm1` securely. By representing `expm1` as an infinite Taylor series starting
 from n=1, the hardware bypasses the unstable 1 - 1 subtraction entirely.
