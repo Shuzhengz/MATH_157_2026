@@ -20,6 +20,7 @@ def backscatterOriginal : ℝ :=
 def backscatterStable : ℝ :=
   veilingLight b E beta * stableOneMinusExpNeg (beta * z)
 
+/-- Proves that the original backscatter equals stable version -/
 theorem backscatter_eq_stable :
     backscatterOriginal b E beta z = backscatterStable b E beta z := by
   unfold backscatterOriginal backscatterStable veilingLight

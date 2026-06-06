@@ -6,21 +6,43 @@ open Real
 
 noncomputable section
 
+/--
+Core stable version for dealing with e^n
+-/
 def expm1 (x : ℝ) : ℝ := Real.exp x - 1
+
+/--
+Stable log (log(1+x))
+-/
 def log1p (x : ℝ) : ℝ := Real.log (1 + x)
 
+/--
+Uses expm1 for 1 - e^(-x)
+-/
 def stableOneMinusExpNeg (x : ℝ) : ℝ :=
   -expm1 (-x)
 
+/--
+Same thing as log1p, now redundant but I left it in because of time constraints
+-/
 def stableLog1p (x : ℝ) : ℝ :=
   log1p x
 
+/--
+rewrites log(a/b) as log(1+(a-b)/b)
+-/
 def stableLogRatio (a b : ℝ) : ℝ :=
   stableLog1p ((a - b) / b)
 
+/--
+−log(1−x)
+-/
 def stableMinusLogOneMinus (x : ℝ) : ℝ :=
   -stableLog1p (-x)
 
+/--
+Rewrites e^(-a) - e^(-b) to avoid cancellation
+-/
 def stableExpDiff (a b : ℝ) : ℝ :=
   if a ≤ b then
     Real.exp (-a) * stableOneMinusExpNeg (b - a)
@@ -29,6 +51,9 @@ def stableExpDiff (a b : ℝ) : ℝ :=
 
 end
 
+/--
+The following theorems prove the equality of above functions
+-/
 theorem stableOneMinusExpNeg_eq (x : ℝ) :
     stableOneMinusExpNeg x = 1 - Real.exp (-x) := by
   unfold stableOneMinusExpNeg expm1

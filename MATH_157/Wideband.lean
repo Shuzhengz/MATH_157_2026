@@ -7,6 +7,12 @@ open Real
 
 noncomputable section
 
+/-
+For this definition section, I separated the original equation into many different
+parts that are not easily written inside this lean file.
+Refer to the Wideband.lean section in the included README.md for rendered equations.
+-/
+
 def directSignal (Sc rho E beta : ℝ → ℝ) (lambda1 lambda2 z : ℝ) : ℝ :=
   ∫ lam in lambda1..lambda2,
     Sc lam * rho lam * E lam * Real.exp (-beta lam * z)
@@ -37,6 +43,9 @@ def betaBStable (Sc Binf beta : ℝ → ℝ) (lambda1 lambda2 z : ℝ) : ℝ :=
 
 end
 
+/--
+Proves that the original wideband attenuation coefficient equals to the stable version
+-/
 theorem betaD_eq_stable
     (Sc rho E beta : ℝ → ℝ) (lambda1 lambda2 z dz : ℝ)
     (hz : 0 < directSignal Sc rho E beta lambda1 lambda2 z)
@@ -49,6 +58,9 @@ theorem betaD_eq_stable
   have hB : directSignalNext Sc rho E beta lambda1 lambda2 z dz ≠ 0 := ne_of_gt hz'
   simpa using (congrArg (fun t : ℝ => t / dz) (Real.log_div hA hB))
 
+/--
+Proves that the original wideband backscatter coefficient equals to the stable version
+-/
 theorem betaB_eq_stable
     (Sc Binf beta : ℝ → ℝ) (lambda1 lambda2 z : ℝ) :
     betaBOriginal Sc Binf beta lambda1 lambda2 z

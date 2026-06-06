@@ -49,8 +49,6 @@ $\beta_c^B = -\ln \left( 1 - \frac{\int_{\lambda_1}^{\lambda_2} S_c(\lambda) B^\
 $I_c = J_c e^{-\beta_c^D (\mathbf{v}_D) \cdot z} + B_c^\infty \left( 1 - e^{-\beta_c^B (\mathbf{v}_B) 
 \cdot z} \right)$
 
-
-
 ---
 
 # BasicIdentities.lean
@@ -396,24 +394,6 @@ Proves exact equality between the two forms.
 
 ---
 
-# What Is Proven
-
-The project proves exact identities over $\mathbb{R}$, including:
-
-- $1-e^{-x} = -expm1(-x)$
-- $\log(a/b)=\log(a)-\log(b)$
-- $e^{-a}-e^{-b}=stableExpDiff(a,b)$
-
-and the corresponding identities for:
-
-- backscatter models
-- radiance transfer models
-- revised image formation models
-- wideband attenuation coefficients
-- wideband backscatter coefficients
-
----
-
 # What Is Not Proven
 
 The project does not currently prove:
@@ -432,7 +412,6 @@ The Lean proofs establish that the stable formulations are exactly equal to the 
 
 A future project could build on these specifications to formally verify floating-point implementations and 
 derive rigorous FP32/FP64 error bounds.
-
 
 ---
 

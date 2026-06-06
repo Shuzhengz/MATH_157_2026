@@ -8,12 +8,18 @@ variable (L0 Ls beta Kd z theta : ℝ)
 
 noncomputable section
 
+/--
+Original RTE
+-/
 def radianceOriginal : ℝ :=
   L0 * Real.exp (-beta * z)
     + (Ls * Real.exp (-Kd * z * Real.cos theta))
         / (beta - Kd * Real.cos theta)
         * (1 - Real.exp (-(beta - Kd * Real.cos theta) * z))
 
+/--
+Rewritten stable RTE
+-/
 def radianceStable : ℝ :=
   L0 * Real.exp (-beta * z)
     + Ls / (beta - Kd * Real.cos theta)
@@ -21,6 +27,9 @@ def radianceStable : ℝ :=
 
 end
 
+/--
+The stable RTE is equivalent to the original RTE
+-/
 theorem radiance_eq_stable :
     radianceOriginal L0 Ls beta Kd z theta
       =

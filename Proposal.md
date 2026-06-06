@@ -2,8 +2,6 @@
 
 Tom Zhang
 
-A17356676
-
 ## Project Background
 
 The FishSense project was created at UC San Diego's Engineers for Exploration as an effort to bring the 
