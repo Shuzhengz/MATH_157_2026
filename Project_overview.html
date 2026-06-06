@@ -278,6 +278,12 @@ elements inside the theorems are contained and cannot be accessed by this furthe
 <p>There are also lone <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>e</mi><mi>n</mi></msup></mrow><annotation encoding="application/x-tex">e^n</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6644em;"></span><span class="mord"><span class="mord mathnormal">e</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.6644em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">n</span></span></span></span></span></span></span></span></span></span></span> inside the rewritten equation that I did not think would cause too much of an
 issue in terms of numerical stability, but may cause issues with accuracy. I did not have time to approach
 them, but again I do not believe they would cause as much issue.</p>
+<h4 id="performance-concerns">Performance Concerns</h4>
+<p>Because <code>expm1</code> is based on an infinite taylor series, it may require significant compute resources to run.
+This may be very computationally expensive, and may be even slower than taking the 64 times performance
+penalty on modern Nvidia graphics cards.</p>
+<p>However, this is beyond the scope of this project, and a future project benchmarking the performance
+implication is needed to answer this question</p>
 <h2 id="math-symbol-reference-table">Math Symbol Reference Table</h2>
 <table>
 <thead>

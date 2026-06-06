@@ -188,6 +188,15 @@ There are also lone $e^n$ inside the rewritten equation that I did not think wou
 issue in terms of numerical stability, but may cause issues with accuracy. I did not have time to approach 
 them, but again I do not believe they would cause as much issue.
 
+#### Performance Concerns
+
+Because `expm1` is based on an infinite taylor series, it may require significant compute resources to run. 
+This may be very computationally expensive, and may be even slower than taking the 64 times performance 
+penalty on modern Nvidia graphics cards.
+
+However, this is beyond the scope of this project, and a future project benchmarking the performance 
+implication is needed to answer this question
+
 ## Math Symbol Reference Table
 
 | Variable | Description |
